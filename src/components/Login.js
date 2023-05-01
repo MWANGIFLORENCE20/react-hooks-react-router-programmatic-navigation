@@ -1,29 +1,35 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 
-function Login({ setIsLoggedIn }) {
-  const history = useHistory();
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
+function Login({onLogin}){
+const[formData, setFormData]=useState({
+ username:"",
+  password:""
+})
+const history =useHistory()
+function handleChange(e){
+  setFormData({
+    ...formData ,
+    [e.target.value]:e.target.value
+  })
+}
 
-  function handleChange(e) {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-
-    setIsLoggedIn(true);
-
-    // after logging the user in, redirect to the home page!
-    history.push("/");
-  }
-
+const url="http://localhost:3001/login"
+function handleSubmit(e){
+  e.preventDefault()
+  fetch(url,{
+    method:"POST",
+    header:{
+      "content-type" :"application/json",
+    },
+    body:JSON.stringify(formData)
+  })
+  .then((r)=>r.json())
+  .then((user)=>(
+    onLogin(user),
+    history.push("/home")
+  ))
+}
   return (
     <form onSubmit={handleSubmit}>
       <h1>Login</h1>
@@ -39,9 +45,9 @@ function Login({ setIsLoggedIn }) {
         value={formData.password}
         onChange={handleChange}
       />
-      <button type="submit">Login</button>
+      <button  type="submit">Login</button>
     </form>
   );
-}
+  }
 
 export default Login;
